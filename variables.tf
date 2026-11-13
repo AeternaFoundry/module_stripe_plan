@@ -48,5 +48,45 @@ EOT
     trial_period_days = optional(number)
     usage_type        = optional(string)
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.plans : (
+        v.billing_scheme == null || (contains(["per_unit", "tiered"], v.billing_scheme))
+      )
+    ])
+    error_message = "must be one of: \"per_unit\", \"tiered\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.plans : (
+        contains(["day", "month", "week", "year"], v.interval)
+      )
+    ])
+    error_message = "must be one of: \"day\", \"month\", \"week\", \"year\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.plans : (
+        v.tiers_mode == null || (contains(["graduated", "volume"], v.tiers_mode))
+      )
+    ])
+    error_message = "must be one of: \"graduated\", \"volume\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.plans : (
+        v.transform_usage == null || (contains(["down", "up"], v.transform_usage.round))
+      )
+    ])
+    error_message = "must be one of: \"down\", \"up\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.plans : (
+        v.usage_type == null || (contains(["licensed", "metered"], v.usage_type))
+      )
+    ])
+    error_message = "must be one of: \"licensed\", \"metered\""
+  }
 }
 
